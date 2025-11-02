@@ -9,7 +9,7 @@
   </head>
     
   <body>
-  <!doctype html>
+  <!DOCTYPE html>
 
 <html lang="th">
 
@@ -111,7 +111,105 @@
 
 </div>
 
+<!-- โหลดไฟล์เกมหลัก -->
+
 <script src="script.js"></script>
+
+<!-- Firebase Client SDK -->
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
+<script>
+
+  // 🔹 ใส่ config ของคุณจาก Firebase
+
+  const firebaseConfig = {
+
+    apiKey: "YOUR_API_KEY",
+
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+
+    projectId: "YOUR_PROJECT",
+
+    storageBucket: "YOUR_PROJECT.appspot.com",
+
+    messagingSenderId: "YOUR_ID",
+
+    appId: "YOUR_APP_ID"
+
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.database();
+
+  // 🔹 ฟังก์ชันบันทึกคะแนน
+
+  function saveScore(name, time) {
+
+    db.ref("leaderboard").push({ name, time });
+
+  }
+
+  // 🔹 ฟังก์ชันโหลด Leaderboard
+
+  function loadLeaderboard() {
+
+    db.ref("leaderboard").once("value").then(snapshot => {
+
+      const data = snapshot.val();
+
+      let html = "<h3>🏆 Leaderboard</h3>";
+
+      if (data) {
+
+        const scores = Object.values(data).sort((a, b) => a.time - b.time);
+
+        scores.forEach((s, i) => {
+
+          html += `<div>${i+1}. ${s.name} — ${s.time} วิ</div>`;
+
+        });
+
+      } else {
+
+        html += "<p>ยังไม่มีอันดับ</p>";
+
+      }
+
+      document.getElementById("leaderboard").innerHTML = html;
+
+    });
+
+  }
+
+  // 🔹 ตัวอย่างการเรียกเมื่อผู้เล่นชนะ
+
+  function onPlayerWin(finishTime) {
+
+    const playerName = prompt("ใส่ชื่อของคุณ:");
+
+    if (playerName) {
+
+      saveScore(playerName, finishTime);
+
+      loadLeaderboard();
+
+    }
+
+    document.getElementById("victory").style.display = "block";
+
+  }
+
+  // โหลด Leaderboard ตอนเปิดเกม
+
+  loadLeaderboard();
+
+</script>
 
 </body>
 
